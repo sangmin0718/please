@@ -81,6 +81,6 @@ def end_session(body: EndIn):
 def stats_global():
     return calc_stats(load()["sessions"])
 
-@app.get("/stats/scenario/{caseid}") # 시나리오 별 통계 조회 -> 구현해야함
+@app.get("/stats/scenario/{caseid}") # 시나리오 별 통계 조회 -> 구현 필요
 def stats_scenario(caseid: str):
     return calc_stats(load()["sessions"], caseid)
