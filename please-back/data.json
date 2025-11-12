@@ -1,0 +1,20 @@
+{
+  "sessions": {
+    "f57056ef-2ad1-4178-9e38-97784c64ce14": {
+      "uid": "string",
+      "caseid": "string",
+      "start": 1762976083,
+      "end": 1762976158,
+      "cleared": true
+    },
+    "ed7d98af-d6c5-43e9-a8e6-14485add6c90": {
+      "uid": "string",
+      "caseid": "string",
+      "start": 1762976444,
+      "start_kst": "2025-11-13T04:40:44.984618+09:00",
+      "end": 1762976474,
+      "end_kst": "2025-11-13T04:41:14.899970+09:00",
+      "cleared": true
+    }
+  }
+}
