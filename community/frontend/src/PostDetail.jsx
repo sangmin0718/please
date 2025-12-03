@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 
 const API_BASE_URL = "http://localhost:8000";
 
-function PostDetail({ post, onBack }) {
+function PostDetail({ post, onBack, onCommentAdded }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [commentText, setCommentText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -29,6 +31,44 @@ function PostDetail({ post, onBack }) {
     fetchDetail();
   }, [post.postId, post.id]);
 
+  const handleSubmitComment = async (e) => {
+    e.preventDefault();
+    if (!commentText.trim()) return;
+
+    try {
+      setSubmitting(true);
+      const res = await fetch(
+        `${API_BASE_URL}/community/posts/${post.postId || post.id}/comments`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            uid: "test-user",
+            nickname: "가연",
+            body: commentText.trim(),
+          }),
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const created = await res.json();
+      setData((prev) => ({
+        ...prev,
+        comments: [...(prev?.comments || []), created],
+      }));
+      setCommentText("");
+      onCommentAdded?.(post.postId || post.id);
+    } catch (err) {
+      console.error("댓글 작성 실패:", err);
+      alert("댓글 등록 중 오류가 발생했습니다.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (loading) return <p>불러오는 중...</p>;
   if (error) return <p>{error}</p>;
   if (!data) return <p>데이터 없음</p>;
@@ -44,11 +84,13 @@ function PostDetail({ post, onBack }) {
       </div>
 
       {data.imageUrl && (
-        <img
-          src={`${API_BASE_URL}${data.imageUrl}`}
-          alt=""
-          className="post-image"
-        />
+        <div className="post-image-wrapper">
+          <img
+            src={`${API_BASE_URL}${data.imageUrl}`}
+            alt=""
+            className="post-image"
+          />
+        </div>
       )}
 
       <div className="post-content">
@@ -66,6 +108,19 @@ function PostDetail({ post, onBack }) {
             </p>
           </div>
         ))}
+
+        <form className="comment-input" onSubmit={handleSubmitComment}>
+          <input
+            type="text"
+            placeholder="댓글을 입력하세요"
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            disabled={submitting}
+          />
+          <button type="submit" disabled={submitting}>
+            {submitting ? "등록 중..." : "등록"}
+          </button>
+        </form>
       </div>
     </div>
   );
