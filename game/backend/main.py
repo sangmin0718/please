@@ -7,8 +7,30 @@ from typing import Optional, Dict
 from datetime import datetime, timezone, timedelta
 from community import router as community_router
 import json, uuid, time
+import os
+from firebase_admin import credentials, firestore, initialize_app
 
 app = FastAPI(title="CAP Stats JSON")
+
+# --- Firebase 초기화 12.03---
+FIREBASE_ENABLED = False
+fb_db = None
+
+cred_json = os.environ.get("FIREBASE_CREDENTIALS")
+
+if cred_json:
+    try:
+        cred_dict = json.loads(cred_json)
+        cred = credentials.Certificate(cred_dict)
+        firebase_app = initialize_app(cred)
+        fb_db = firestore.client()
+        FIREBASE_ENABLED = True
+        print("Firebase initialized successfully")
+    except Exception as e:
+        print("Firebase init failed:", e)
+else:
+    print("FIREBASE_CREDENTIALS env not set, running without Firebase")
+# -- CORS 설정 및 정적 파일 서빙 ---
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
