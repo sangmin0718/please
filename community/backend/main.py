@@ -1,11 +1,10 @@
 from pathlib import Path
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 # community.py 안의 router 불러오기
-from community import router as community_router
+from .community import router as community_router
 
 app = FastAPI(
     title="Please Community API",

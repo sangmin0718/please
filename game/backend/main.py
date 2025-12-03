@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from pathlib import Path
 from typing import Optional, Dict
 from datetime import datetime, timezone, timedelta
-from community import router as community_router
+from community.backend.community import router as community_router
 import json, uuid, time
 import os
 from firebase_admin import credentials, firestore, initialize_app
