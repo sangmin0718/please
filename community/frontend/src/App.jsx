@@ -48,13 +48,16 @@ function App() {
   };
 
   // ✅ (지금은 프론트 전용) 글쓰기 시 리스트에만 추가
-  const handleSubmitWrite = async ({ title, content }) => {
+  const handleSubmitWrite = async ({ title, content, image }) => {
   try {
     const form = new FormData();
     form.append("uid", "test-user");       // 임시 사용자 정보
     form.append("nickname", "가연");       // 임시 닉네임
     form.append("title", title);
     form.append("body", content);
+    if (image) {
+      form.append("image", image);
+    }
 
     const res = await fetch("http://localhost:8000/community/posts", {
       method: "POST",

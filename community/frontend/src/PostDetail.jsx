@@ -44,11 +44,13 @@ function PostDetail({ post, onBack }) {
       </div>
 
       {data.imageUrl && (
-        <img
-          src={`${API_BASE_URL}${data.imageUrl}`}
-          alt=""
-          className="post-image"
-        />
+        <div className="post-image-wrapper">
+          <img
+            src={`${API_BASE_URL}${data.imageUrl}`}
+            alt=""
+            className="post-image"
+          />
+        </div>
       )}
 
       <div className="post-content">
