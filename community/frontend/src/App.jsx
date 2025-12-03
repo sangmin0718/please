@@ -39,6 +39,16 @@ function App() {
     setSelectedPost(null);
   };
 
+  const handleCommentAdded = (postId) => {
+    setCommunityData((prev) =>
+      prev.map((item) =>
+        item.id === postId
+          ? { ...item, commentCount: (item.commentCount || 0) + 1 }
+          : item
+      )
+    );
+  };
+
   const handleOpenWrite = () => {
     setIsWriteOpen(true);
   };
@@ -48,13 +58,16 @@ function App() {
   };
 
   // ✅ (지금은 프론트 전용) 글쓰기 시 리스트에만 추가
-  const handleSubmitWrite = async ({ title, content }) => {
+  const handleSubmitWrite = async ({ title, content, image }) => {
   try {
     const form = new FormData();
     form.append("uid", "test-user");       // 임시 사용자 정보
     form.append("nickname", "가연");       // 임시 닉네임
     form.append("title", title);
     form.append("body", content);
+    if (image) {
+      form.append("image", image);
+    }
 
     const res = await fetch("http://localhost:8000/community/posts", {
       method: "POST",
@@ -172,7 +185,11 @@ function App() {
             <h2 className='main-title'>제작자 정보</h2>
           </section>
         ) : selectedPost ? (
-          <PostDetail post={selectedPost} onBack={handleBackToList} />
+          <PostDetail
+            post={selectedPost}
+            onBack={handleBackToList}
+            onCommentAdded={handleCommentAdded}
+          />
         ) : selectedMenu === "community" ? (
           // 🔥 커뮤니티일 때만 로딩/에러 처리
           communityLoading ? (
