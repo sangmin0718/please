@@ -24,8 +24,8 @@ app.add_middleware(
 # 2. Firebase 초기화 (나중에 키 파일 경로를 실제 파일로 바꿔야 함)
 # try-except는 서버 재실행 시 중복 연결 에러 방지용
 try:
-    # cred = credentials.Certificate("serviceAccountKey.json") # 키 파일 경로
-    # firebase_admin.initialize_app(cred)
+    cred = credentials.Certificate("serviceAccountKey.json") # 키 파일 경로
+    firebase_admin.initialize_app(cred)
     print("Firebase 연결 설정 공간 (아직 키 파일 없음)")
 except Exception as e:
     print(f"Firebase 초기화 에러: {e}")
