@@ -1,0 +1,70 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background: black;
+}
+
+#root {
+  height: 100vh;
+}
+
+.screen {
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.wrap {
+  position: relative;
+  width: 1000px; 
+}
+
+.signup-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+
+.input-box {
+  position: absolute;
+  width: 500px;
+  height: 55px;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 22px;
+  outline: none;
+}
+
+.input1 {
+  top: 150px;
+  left: 120px;
+}
+
+.input2 {
+  top: 260px;
+  left: 120px;
+}
+
+.btn {
+  position: absolute;
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  text-align: center;
+  outline: none;
+}
+
+.signup-btn {
+  width: 260px; 
+  height: 200px;
+  top: 130px;
+  left: 650px;
+  font-size: 28px;
+}

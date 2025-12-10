@@ -1,0 +1,77 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background: black;
+}
+
+#root {
+  height: 100vh;
+}
+
+.screen {
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.wrap {
+  position: relative;
+  width: 1000px;
+}
+
+.login-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.input-box {
+  position: absolute;
+  width: 500px;
+  height: 55px;
+  background: transparent; 
+  border: none;            
+  outline: none;            
+  color: white;
+  font-size: 22px;
+}
+
+.input1 {
+  top: 155px;   
+  left: 135px;
+}
+
+.input2 {
+  top: 260px;   
+  left: 135px;
+}
+
+.btn {
+  position: absolute;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+}
+
+.btn1 {
+  width: 220px;      
+  height: 110px;
+  top: 142px;        
+  left: 670px;     
+  font-size: 28px;
+}
+
+.btn2 {
+  width: 205px;
+  height: 50px;
+  top: 280px;
+  left: 680px;
+  font-size: 18px;
+}
