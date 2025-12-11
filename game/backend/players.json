@@ -53,6 +53,30 @@
         "playCount": 2,
         "clearCount": 0
       }
+    },
+    "ddd111": {
+      "1": {
+        "uid": "ddd111",
+        "caseid": "1",
+        "startTime": "2025-12-11T21:49:09.674951+09:00",
+        "endTime": "2025-12-11T21:49:22.497027+09:00",
+        "judge": true,
+        "avgTimeSeconds": 13.0,
+        "playCount": 1,
+        "clearCount": 1
+      }
+    },
+    "asd123": {
+      "1": {
+        "uid": "asd123",
+        "caseid": "1",
+        "startTime": "2025-12-11T21:49:44.352173+09:00",
+        "endTime": "2025-12-11T21:49:56.869007+09:00",
+        "judge": true,
+        "avgTimeSeconds": 12.0,
+        "playCount": 1,
+        "clearCount": 1
+      }
     }
   }
 }

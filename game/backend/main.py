@@ -30,6 +30,10 @@ if cred_json:
         print("Firebase init failed:", e)
 else:
     print("FIREBASE_CREDENTIALS env not set, running without Firebase")
+
+# 1. 현재 파일(main.py)이 있는 폴더의 절대 경로 구하기
+BASE_DIR = Path(__file__).resolve().parent
+
 # -- CORS 설정 및 정적 파일 서빙 ---
 app.add_middleware(
     CORSMiddleware,
@@ -38,14 +42,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-UPLOAD_DIR = Path("uploads")
+# 3. 모든 경로를 BASE_DIR 기준으로 설정 (backend 폴더 안으로 고정)
+UPLOAD_DIR = BASE_DIR / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 app.include_router(community_router, prefix="/community", tags=["community"])
 
 # --- JSON 파일 경로 ---
-PLAYERS_DB = Path("players.json")  # 각 플레이어 × 스테이지 통계
-CASES_DB = Path("cases.json")      # Case 전체 통계
+PLAYERS_DB = BASE_DIR / "players.json"  # 각 플레이어 × 스테이지 통계
+CASES_DB = BASE_DIR / "cases.json"      # Case 전체 통계
 
 # --- 세션(시작~종료 구간)은 메모리에만 유지 ---
 SESSIONS: Dict[str, dict] = {}
