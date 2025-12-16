@@ -4,6 +4,9 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 from datetime import datetime, timezone, timedelta
 import json, uuid
+from firebase import get_uid
+from fastapi import Header
+
 
 router = APIRouter()
 
@@ -45,7 +48,7 @@ class CommentCreate(BaseModel):
 # ========== 1) 글 작성 (텍스트 + 이미지 업로드) ==========
 @router.post("/posts")
 async def create_post(
-    uid: str = Form(...),
+    authorization: str | None = Header(default=None), # 인증 토큰 헤더
     nickname: str = Form(...),
     title: str = Form(...),
     body: str = Form(""),
