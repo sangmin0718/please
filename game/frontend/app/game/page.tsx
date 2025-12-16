@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CASES, type CaseData, type TabType } from './cases';
 
 const MENU_BUTTONS: { tab: TabType; name: string; top: string }[] = [
@@ -86,6 +86,35 @@ const CHECKLIST_ITEMS: Record<ChecklistPage, ChecklistItem[]> = {
     { id: 'work2-4', page: 'work2', top: '34.5%', label: '근로 체크 14' },
   ],
 };
+type CharacterCarouselProps = {
+  images: string[];
+  interval?: number; // 프레임 전환 간격(ms)
+};
+
+function CharacterCarousel({ images, interval = 150 }: CharacterCarouselProps) {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (!images || images.length === 0) return;
+
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % images.length);
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, [images, interval]);
+
+  if (!images || images.length === 0) return null;
+
+  return (
+    <Image
+      src={images[index]}
+      alt="캐릭터"
+      fill
+      className="object-contain"
+    />
+  );
+}
 
 export default function GameScreen() {
   const [currentTab, setCurrentTab] = useState<TabType>('document');
@@ -407,19 +436,20 @@ export default function GameScreen() {
       {renderChecklist()}
 
       {/* 캐릭터 이미지 */}
-      {isGameActive && (
-        <div
-          className="absolute"
-          style={{ bottom: '52.4%', left: '1%', width: '31%', height: '31%' }}
-        >
-          <Image
-            src={selectedCase.characterImage}
-            alt={selectedCase.characterName}
-            fill
-            className="object-contain"
-          />
-        </div>
-      )}
+      {isGameActive &&
+        selectedCase.characterImages &&
+        selectedCase.characterImages.length > 0 && (
+          <div
+            className="absolute"
+            style={{ bottom: '52.4%', left: '1%', width: '31%', height: '31%' }}
+          >
+            <CharacterCarousel
+              images={selectedCase.characterImages}
+              interval={120} // 프레임 전환 속도 (원하면 숫자 조절)
+            />
+          </div>
+        )}
+
 
       {/* 메인 패널 */}
       <div className="game-main-panel">

@@ -14,11 +14,12 @@ export interface CaseData {
   title: string;
   summary: string;
   characterName: string;
-  characterImage: string;
+  // characterImage: string;
   statusText?: string;
   is_innocent: boolean;
   introScript: string;
   contents: CaseContents;
+  characterImages: string[];
 }
 
 // case1 import

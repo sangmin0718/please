@@ -1,16 +1,63 @@
-// app/game/cases/case1/document.tsx
-export default function Case1Document() {
+'use client';
+
+import { useState } from 'react';
+import Image from 'next/image';
+
+const images = [
+  '/images/cases/case1/hwp1.png',
+  '/images/cases/case1/hwp2.png',
+  '/images/cases/case1/hwp3.png',
+  '/images/cases/case1/hwp4.png',
+];
+
+export default function Case1SNS() {
+  const [index, setIndex] = useState(0);
+
+  const prev = () => {
+    setIndex((i) => (i === 0 ? images.length - 1 : i - 1));
+  };
+
+  const next = () => {
+    setIndex((i) => (i === images.length - 1 ? 0 : i + 1));
+  };
+
   return (
-    <div className="w-full h-full">
-      <p className="mb-4">
-        [문서 증거] 사건 1에 대한 공식 기록입니다. 피의자 홍길동은 사건 당일,
-        회사 회의에 참석했다는 알리바이를 주장하고 있습니다.
-      </p>
-      <ul className="list-disc pl-5 space-y-2">
-        <li>출근 기록: 09:02 카드 태그</li>
-        <li>회의실 CCTV: 09:10 ~ 10:00 참석</li>
-        <li>동료 진술: 회의 중 자리를 비운 적 없음</li>
-      </ul>
-    </div>
+      <div className="w-full h-full m-8 flex flex-col justify-center -translate-y-8">
+        <p className="mb-4 text-sm text-gray-300 text-center">
+          [문서 기록] 사건과 관련된 민지의 자료들입니다.
+        </p>
+
+       <div className="relative w-[500px] h-[400px] flex items-center justify-center translate-x-35">
+  {/* 왼쪽 버튼 */}
+          <button
+            onClick={prev}
+            className="absolute left-1/2 -translate-x-[310px] z-10
+                      px-3 py-2 bg-black/50 text-white rounded-full
+                      hover:bg-black/70"
+          >
+            ◀
+          </button>
+
+          {/* 이미지 */}
+           <Image
+              src={images[index]}
+              alt={`문서 기록 ${index + 1}`}
+              fill
+              className="object-contain rounded-lg"
+            />
+
+          {/* 오른쪽 버튼 */}
+          <button
+            onClick={next}
+            className="absolute left-1/2 translate-x-[270px] z-10
+                      px-3 py-2 bg-black/50 text-white rounded-full
+                      hover:bg-black/70"
+          >
+            ▶
+          </button>
+        </div>
+
+      </div>
+
   );
 }

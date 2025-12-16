@@ -1,20 +1,64 @@
-// app/game/cases/case1/sns.tsx
+'use client';
+
+import { useState } from 'react';
+import Image from 'next/image';
+
+const images = [
+  '/images/cases/case1/sns1.png',
+  '/images/cases/case1/sns2.png',
+  '/images/cases/case1/sns3.png',
+  '/images/cases/case1/sns4.png',
+];
+
 export default function Case1SNS() {
+  const [index, setIndex] = useState(0);
+
+  const prev = () => {
+    setIndex((i) => (i === 0 ? images.length - 1 : i - 1));
+  };
+
+  const next = () => {
+    setIndex((i) => (i === images.length - 1 ? 0 : i + 1));
+  };
+
   return (
-    <div className="w-full h-full space-y-4">
-      <p className="mb-2">[SNS 기록] 사건 전후 홍길동의 SNS 활동입니다.</p>
-      <div className="bg-white/5 p-3 rounded-lg">
-        <p className="text-sm text-gray-300">사건 전날 밤 11:48</p>
-        <p>“요즘 너무 피곤하다… 내일도 회의라니.”</p>
+      <div className="w-full h-full m-8 flex flex-col justify-center -translate-y-8">
+        <p className="mb-4 text-sm text-gray-300 text-center">
+          [SNS 기록] 사건 전후 민지의 SNS 활동입니다.
+        </p>
+
+        <div className="relative flex items-center justify-center">
+  {/* 왼쪽 버튼 */}
+          <button
+            onClick={prev}
+            className="absolute left-1/2 -translate-x-[180px] z-10
+                      px-3 py-2 bg-black/50 text-white rounded-full
+                      hover:bg-black/70"
+          >
+            ◀
+          </button>
+
+          {/* 이미지 */}
+          <Image
+            src={images[index]}
+            alt={`SNS 기록 ${index + 1}`}
+            width={250}
+            height={150}
+            className="rounded-lg"
+          />
+
+          {/* 오른쪽 버튼 */}
+          <button
+            onClick={next}
+            className="absolute left-1/2 translate-x-[140px] z-10
+                      px-3 py-2 bg-black/50 text-white rounded-full
+                      hover:bg-black/70"
+          >
+            ▶
+          </button>
+        </div>
+
       </div>
-      <div className="bg-white/5 p-3 rounded-lg">
-        <p className="text-sm text-gray-300">사건 당일 오전 8:15</p>
-        <p>“오늘은 꼭 잘 버텨보자.”</p>
-      </div>
-      <div className="bg-white/5 p-3 rounded-lg">
-        <p className="text-sm text-gray-300">사건 이후</p>
-        <p>“갑자기 경찰서에서 연락이 왔다. 내가 왜…?”</p>
-      </div>
-    </div>
+
   );
 }
