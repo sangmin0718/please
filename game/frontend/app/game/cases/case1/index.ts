@@ -1,4 +1,4 @@
-// app/game/cases/case1/index.ts
+// frontend/app/game/cases/case1/index.ts
 import type { CaseData } from '../index';
 import Case1Document from './document';
 import Case1SNS from './sns';
@@ -10,13 +10,20 @@ export const case1: CaseData = {
   title: '사건번호 1',
   summary: '길동의 전세사기',
   characterName: '홍길동',
-  characterImage: '/images/cases/case1/character.png',
+
+  // 여러 이미지 프레임
+  characterImages: [
+    '/images/cases/case1/character1.png',
+    '/images/cases/case1/character2.png',
+    '/images/cases/case1/character3.png',
+  ],
+
   statusText: 'status: 안정',
   is_innocent: true,
   introScript:
-    '저는 첫 번째 사건의 피의자 홍길동입니다. 최근에 이런 일들이 있었어요. 그날 이후로 제 삶이 완전히 달라졌습니다. 당신이 제 이야기를 듣고 판단해 주세요.',
+    '저는 첫 번째 사건의 피의자 홍길동입니다. 최근에 이런 일들이 있었어요...',
   contents: {
-    document: Case1Document,  
+    document: Case1Document,
     sns: Case1SNS,
     video: Case1Video,
     etc: Case1Etc,

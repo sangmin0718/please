@@ -7,7 +7,7 @@ from firebase_admin import credentials, auth
 app = FastAPI()
 
 # 1. CORS 설정 (프론트엔드에서 오는 요청 허용)
-# 배포 후에는 allow_origins에 실제 도메인 주소를 넣어야 합니다.
+# 배포 후에는 allow_origins에 실제 도메인 주소를 넣어야 합니다
 origins = [
     "http://localhost:5173", # 로컬 React 주소
     "http://127.0.0.1:5173",
