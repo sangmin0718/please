@@ -1,29 +1,22 @@
-import { useState, useEffect } from "react";
-import "./App.css";
-import BoardPage from "./BoardPage";
-import PostDetail from "./PostDetail";
-import WritePostModal from "./WritePostModal";
+import { useState, useEffect } from 'react'
+import './App.css'
+import BoardPage from './BoardPage';
+import PostDetail from './PostDetail';
+import WritePostModal from './WritePostModal';
 import { auth } from "./firebase";
 
 const NOTICES_PER_PAGE = 4;
 
-// ✅ 배포/개발 환경별로 바뀌는 API 주소 (Vite env)
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
-
-// env 누락 시 바로 알 수 있게(개발 편의)
-if (!API_BASE_URL) {
-  console.warn(
-    "[WARN] VITE_API_BASE_URL이 설정되지 않았습니다. .env.development / .env.production을 확인하세요."
-  );
-}
+// ✅ 개발/배포 환경별 API 주소
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000").replace(/\/$/, "");
 
 const NOTICE_DATA = [
-  { id: 1, title: "11월 3주차 정기 점검 안내", date: "2025-11-15" },
-  { id: 2, title: "커뮤니티 운영 수칙 안내", date: "2025-11-13" },
-  { id: 3, title: "서비스 이용약관 개정 사전 안내", date: "2025-11-13" },
-  { id: 4, title: "게임 안정화를 위한 업데이트 v01-2", date: "2025-11-13" },
-  { id: 5, title: "11월 2주차 정기 점검 안내", date: "2025-11-12" },
-  { id: 6, title: "게임 안정화를 위한 업데이트 v01-1", date: "2025-11-11" },
+  { id: 1, title: '11월 3주차 정기 점검 안내', date: '2025-11-15' },
+  { id: 2, title: '커뮤니티 운영 수칙 안내', date: '2025-11-13' },
+  { id: 3, title: '서비스 이용약관 개정 사전 안내', date: '2025-11-13' },
+  { id: 4, title: '게임 안정화를 위한 업데이트 v01-2', date: '2025-11-13' },
+  { id: 5, title: '11월 2주차 정기 점검 안내', date: '2025-11-12' },
+  { id: 6, title: '게임 안정화를 위한 업데이트 v01-1', date: '2025-11-11' },
 ];
 
 function App() {
@@ -58,17 +51,17 @@ function App() {
     );
   };
 
-  const handleOpenWrite = () => setIsWriteOpen(true);
-  const handleCloseWrite = () => setIsWriteOpen(false);
+  const handleOpenWrite = () => {
+    setIsWriteOpen(true);
+  };
 
-  // ✅ 글쓰기: POST도 API_BASE_URL 사용
+  const handleCloseWrite = () => {
+    setIsWriteOpen(false);
+  };
+
+  // ✅ 글쓰기(백엔드 연동)
   const handleSubmitWrite = async ({ title, content, image }) => {
     try {
-      if (!API_BASE_URL) {
-        alert("API 주소(VITE_API_BASE_URL)가 설정되지 않았습니다.");
-        return;
-      }
-
       const token = await auth.currentUser?.getIdToken();
       if (!token) {
         alert("로그인이 필요합니다.");
@@ -76,7 +69,7 @@ function App() {
       }
 
       const form = new FormData();
-      form.append("nickname", "가연"); // 임시
+      form.append("nickname", "가연");
       form.append("title", title);
       form.append("body", content);
       if (image) form.append("image", image);
@@ -116,11 +109,6 @@ function App() {
 
     const fetchCommunity = async () => {
       try {
-        if (!API_BASE_URL) {
-          setCommunityError("API 주소(VITE_API_BASE_URL)가 설정되지 않았습니다.");
-          return;
-        }
-
         setCommunityLoading(true);
         setCommunityError(null);
 
@@ -156,60 +144,57 @@ function App() {
   }, [selectedMenu]);
 
   const currentData =
-    selectedMenu === "notice" ? NOTICE_DATA : selectedMenu === "community" ? communityData : [];
+    selectedMenu === 'notice' ? NOTICE_DATA :
+      selectedMenu === 'community' ? communityData :
+        [];
 
   const currentTitle =
-    selectedMenu === "notice" ? "공지사항" : selectedMenu === "community" ? "커뮤니티" : "제작자 정보";
+    selectedMenu === 'notice' ? '공지사항' :
+      selectedMenu === 'community' ? '커뮤니티' :
+        '제작자 정보';
 
-  const showWriteButton = selectedMenu === "community";
+  const showWriteButton = selectedMenu === 'community';
 
   return (
-    <div className="page">
-      <aside className="left-panel">
-        <div className="left-header">
-          <img src="/please.png" alt="title" className="title-image" />
+    <div className='page'>
+      <aside className='left-panel'>
+        <div className='left-header'>
+          <img src="/please.png" alt="title" className='title-image' />
         </div>
 
-        <nav className="menu">
+        <nav className='menu'>
           <button
             className={selectedMenu === "notice" ? "menu-button active" : "menu-button"}
-            onClick={() => {
-              setSelectedMenu("notice");
-              setSelectedPost(null);
-            }}
+            onClick={() => { setSelectedMenu("notice"); setSelectedPost(null); }}
           >
             공지사항
           </button>
-
           <button
             className={selectedMenu === "community" ? "menu-button active" : "menu-button"}
-            onClick={() => {
-              setSelectedMenu("community");
-              setSelectedPost(null);
-            }}
+            onClick={() => { setSelectedMenu("community"); setSelectedPost(null); }}
           >
             유저 커뮤니티
           </button>
-
           <button
             className={selectedMenu === "about" ? "menu-button active" : "menu-button"}
-            onClick={() => {
-              setSelectedMenu("about");
-              setSelectedPost(null);
-            }}
+            onClick={() => { setSelectedMenu("about"); setSelectedPost(null); }}
           >
             제작자 정보
           </button>
         </nav>
       </aside>
 
-      <main className="main-panel">
+      <main className='main-panel'>
         {selectedMenu === "about" ? (
           <section>
-            <h2 className="main-title">제작자 정보</h2>
+            <h2 className='main-title'>제작자 정보</h2>
           </section>
         ) : selectedPost ? (
-          <PostDetail post={selectedPost} onBack={handleBackToList} onCommentAdded={handleCommentAdded} />
+          <PostDetail
+            post={selectedPost}
+            onBack={handleBackToList}
+            onCommentAdded={handleCommentAdded}
+          />
         ) : selectedMenu === "community" ? (
           communityLoading ? (
             <p>커뮤니티 글을 불러오는 중입니다...</p>
@@ -237,7 +222,11 @@ function App() {
         )}
       </main>
 
-      <WritePostModal open={isWriteOpen} onClose={handleCloseWrite} onSubmit={handleSubmitWrite} />
+      <WritePostModal
+        open={isWriteOpen}
+        onClose={handleCloseWrite}
+        onSubmit={handleSubmitWrite}
+      />
     </div>
   );
 }
