@@ -3,18 +3,20 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-# community.py 안의 router 불러오기
-from community import router as community_router
+# ✅ 같은 패키지(community/backend) 안의 community.py에서 router 가져오기
+from .community import router as community_router
 
 app = FastAPI(
     title="Please Community API",
     version="0.1.0",
 )
 
-# ----- CORS 설정 (프론트엔드에서 호출할 수 있게) -----
-# 필요에 따라 origin 수정
+# ✅ 현재 파일 기준 경로 고정
+BASE_DIR = Path(__file__).resolve().parent
+
+# ----- CORS 설정 -----
 origins = [
-    "http://localhost:5173",  # Vite 기본 포트
+    "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
 
@@ -34,9 +36,8 @@ app.include_router(
 )
 
 # ----- 업로드 폴더 Static 마운트 -----
-# community.py에서 UPLOAD_DIR = Path("uploads")로 쓰고 있으니 같은 폴더를 정적 파일로 노출
-UPLOAD_DIR = Path("uploads")
-UPLOAD_DIR.mkdir(exist_ok=True)
+UPLOAD_DIR = BASE_DIR / "uploads"
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 app.mount(
     "/uploads",
@@ -44,7 +45,6 @@ app.mount(
     name="uploads",
 )
 
-# (옵션) 헬스 체크용 루트 엔드포인트
 @app.get("/")
 def read_root():
     return {"message": "Community backend running"}
