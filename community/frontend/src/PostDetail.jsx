@@ -6,13 +6,14 @@ const isLocalHost =
   (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
 
 const envBase = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "");
-const shouldForceDefault =
-  !isLocalHost && envBase && /localhost|127\.0\.0\.1/.test(envBase);
+const isEnvLocal = envBase && /localhost|127\.0\.0\.1/i.test(envBase);
 
+// 정책: 프로덕션(비-localhost)에서는 항상 배포 백엔드를 우선 사용.
+// 개발(localhost)일 때만 env 값을 존중하고, 없으면 8000 기본값 사용.
 const API_BASE_URL = (
-  shouldForceDefault
-    ? DEFAULT_BACKEND
-    : envBase || (isLocalHost ? "http://localhost:8000" : DEFAULT_BACKEND)
+  isLocalHost
+    ? envBase || "http://localhost:8000"
+    : (!isEnvLocal && envBase) ? envBase : DEFAULT_BACKEND
 ).replace(/\/$/, "");
 
 function toAbsoluteUrl(url) {
