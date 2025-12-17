@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-
-const API_BASE_URL = "http://localhost:8000";
+import { API_BASE_URL, toAbsoluteUrl } from "./apiConfig";
 
 function PostDetail({ post, onBack, onCommentAdded }) {
   const [data, setData] = useState(null);
@@ -86,7 +85,7 @@ function PostDetail({ post, onBack, onCommentAdded }) {
       {data.imageUrl && (
         <div className="post-image-wrapper">
           <img
-            src={`${API_BASE_URL}${data.imageUrl}`}
+            src={toAbsoluteUrl(data.imageUrl)}
             alt=""
             className="post-image"
           />
