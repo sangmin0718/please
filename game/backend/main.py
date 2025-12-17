@@ -1,8 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi import Header
-from firebase_admin import auth as fb_auth
 from pydantic import BaseModel
 from pathlib import Path
 from typing import Optional, Dict
@@ -32,18 +30,6 @@ if cred_json:
         print("Firebase init failed:", e)
 else:
     print("FIREBASE_CREDENTIALS env not set, running without Firebase")
-
-# 토큰에서 uid/email 뽑는 함수
-def get_uid_from_auth(authorization: str | None) -> tuple[str, str | None]:
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Missing token")
-
-    token = authorization.split(" ", 1)[1].strip()
-    try:
-        decoded = fb_auth.verify_id_token(token)
-        return decoded["uid"], decoded.get("email")
-    except Exception:
-        raise HTTPException(status_code=401, detail="Invalid token")
 
 # 1. 현재 파일(main.py)이 있는 폴더의 절대 경로 구하기
 BASE_DIR = Path(__file__).resolve().parent
@@ -94,7 +80,8 @@ def save(path: Path, data: dict) -> None:
 
 
 # --- 요청 바디 스키마 ---
-class StartIn(BaseModel):    
+class StartIn(BaseModel):
+    uid: str
     caseid: str
 
 class EndIn(BaseModel):
@@ -105,21 +92,19 @@ class EndIn(BaseModel):
 
 # --- 세션 시작: 메모리에만 저장 ---
 @app.post("/events/start")
-def start_session(body: StartIn, authorization: str | None = Header(default=None)):
-    uid, email = get_uid_from_auth(authorization)
-
+def start_session(body: StartIn):
     sid = str(uuid.uuid4())
     start_kst = now_kst_iso()
 
     SESSIONS[sid] = {
-        "uid": uid,
-        "email": email,
+        "uid": body.uid,
         "caseid": body.caseid,
-        "start": now_epoch(),
-        "start_kst": start_kst,
+        "start": now_epoch(),   # 초
+        "start_kst": start_kst, # KST 문자열
     }
 
-    return {"session_id": sid, "startTime": start_kst, "uid": uid, "email": email}
+    return {"session_id": sid, "startTime": start_kst}
+
 
 # --- 세션 종료: 플레이 시간 계산 + JSON 두 군데 갱신 ---
 @app.post("/events/end")
@@ -134,7 +119,6 @@ def end_session(body: EndIn):
 
     uid = session["uid"]
     caseid = body.caseid or session["caseid"]
-    email = session.get("email")
 
     # 1) players.json 갱신 (각 플레이어 × 스테이지)
     players_doc = load(PLAYERS_DB, default={"players": {}})
@@ -210,7 +194,6 @@ def end_session(body: EndIn):
             fb_db.collection("player_stats").document(uid).set(
                 {
                     "uid": uid,
-                    "email": email,
                     "cases": user_cases,  # 이 유저가 플레이한 모든 case 통계
                 },
                 merge=True,  # 기존 데이터와 병합
@@ -227,7 +210,6 @@ def end_session(body: EndIn):
             fb_db.collection("session_logs").add(
                 {
                     "uid": uid,
-                    "email": email,
                     "caseid": caseid,
                     "judge": body.judge,
                     "elapsed": elapsed,
