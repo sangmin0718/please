@@ -157,19 +157,14 @@ export default function GameScreen() {
 
 
   const startSession = async (caseId: number) => {
-    const uid = getUid();
-    if (!uid) {
-      alert('아이디가 없음. 로비에서 uid 저장부터 하자.');
-      return;
-    }
-    const data = await apiPost('/events/start', {
-      uid,
-      caseid: String(caseId),
-    });
-    sessionIdRef.current = data.session_id;
-    startIsoRef.current = data.startTime; // 백엔드가 KST ISO 줌
-    console.log('session start', data);
-  };
+  const data = await apiPost('/events/start', {
+    caseid: String(caseId),
+  });
+  sessionIdRef.current = data.session_id;
+  startIsoRef.current = data.startTime;
+  console.log('session start', data);
+};
+
 
   const endSession = async (judge: boolean, caseId: number) => {
     const sid = sessionIdRef.current;
@@ -210,24 +205,37 @@ export default function GameScreen() {
     setGameState('intro');
   };
 
-  const handleStartGame = () => {
-    setGameState('playing');
-  };
+  const handleStartGame = async () => {
+  setGameState('playing');
+  try {
+    await startSession(currentCaseId);
+  } catch (e) {
+    console.error(e);
+    alert(String(e));
+  }
+};
 
-  const handleVerdict = (verdict: 'guilty' | 'innocent') => {
-    if (!isGameActive) return;
 
-    const isCorrect =
-      (verdict === 'innocent' && selectedCase.is_innocent) ||
-      (verdict === 'guilty' && !selectedCase.is_innocent);
+  const handleVerdict = async (verdict: 'guilty' | 'innocent') => {
+  if (!isGameActive) return;
 
-    if (isCorrect) {
-      alert(' 정답입니다!');
-    } else {
-      alert(' 오답입니다!');
-    }
-    setCheckedItems({});
-  };
+  const isCorrect =
+    (verdict === 'innocent' && selectedCase.is_innocent) ||
+    (verdict === 'guilty' && !selectedCase.is_innocent);
+
+  if (isCorrect) alert(' 정답입니다!');
+  else alert(' 오답입니다!');
+
+  try {
+    await endSession(isCorrect, currentCaseId); // 토큰 저장
+  } catch (e) {
+    console.error(e);
+    alert(String(e));
+  }
+
+  setCheckedItems({});
+};
+
 
   // 체크박스 토글
   const toggleChecklistItem = (id: string) => {
