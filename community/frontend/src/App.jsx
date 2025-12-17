@@ -1,35 +1,43 @@
-import { useState, useEffect } from 'react'
-import './App.css'
-import BoardPage from './BoardPage';
-import PostDetail from './PostDetail';
-import WritePostModal from './WritePostModal';
-import { auth } from "./firebase"; 
+import { useState, useEffect } from "react";
+import "./App.css";
+import BoardPage from "./BoardPage";
+import PostDetail from "./PostDetail";
+import WritePostModal from "./WritePostModal";
+import { auth } from "./firebase";
 
 const NOTICES_PER_PAGE = 4;
-const API_BASE_URL = "http://localhost:8000";
+
+// ✅ 배포/개발 환경별로 바뀌는 API 주소 (Vite env)
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
+
+// env 누락 시 바로 알 수 있게(개발 편의)
+if (!API_BASE_URL) {
+  console.warn(
+    "[WARN] VITE_API_BASE_URL이 설정되지 않았습니다. .env.development / .env.production을 확인하세요."
+  );
+}
 
 const NOTICE_DATA = [
-  { id: 1, title: '11월 3주차 정기 점검 안내', date: '2025-11-15' },
-  { id: 2, title: '커뮤니티 운영 수칙 안내', date: '2025-11-13' },
-  { id: 3, title: '서비스 이용약관 개정 사전 안내', date: '2025-11-13' },
-  { id: 4, title: '게임 안정화를 위한 업데이트 v01-2', date: '2025-11-13' },
-  { id: 5, title: '11월 2주차 정기 점검 안내', date: '2025-11-12' },
-  { id: 6, title: '게임 안정화를 위한 업데이트 v01-1', date: '2025-11-11' },
+  { id: 1, title: "11월 3주차 정기 점검 안내", date: "2025-11-15" },
+  { id: 2, title: "커뮤니티 운영 수칙 안내", date: "2025-11-13" },
+  { id: 3, title: "서비스 이용약관 개정 사전 안내", date: "2025-11-13" },
+  { id: 4, title: "게임 안정화를 위한 업데이트 v01-2", date: "2025-11-13" },
+  { id: 5, title: "11월 2주차 정기 점검 안내", date: "2025-11-12" },
+  { id: 6, title: "게임 안정화를 위한 업데이트 v01-1", date: "2025-11-11" },
 ];
-
 
 function App() {
   const [selectedMenu, setSelectedMenu] = useState("notice");
   const [selectedPost, setSelectedPost] = useState(null);
 
-  //커뮤 글 리스트
+  // 커뮤 글 리스트
   const [communityData, setCommunityData] = useState([]);
 
-  //커뮤 글 불러오기 에러상태
+  // 커뮤 글 불러오기 에러상태
   const [communityLoading, setCommunityLoading] = useState(false);
   const [communityError, setCommunityError] = useState(null);
 
-  //모달 상태
+  // 모달 상태
   const [isWriteOpen, setIsWriteOpen] = useState(false);
 
   const handleSelectedPost = (post) => {
@@ -50,38 +58,36 @@ function App() {
     );
   };
 
-  const handleOpenWrite = () => {
-    setIsWriteOpen(true);
-  };
+  const handleOpenWrite = () => setIsWriteOpen(true);
+  const handleCloseWrite = () => setIsWriteOpen(false);
 
-  const handleCloseWrite = () => {
-    setIsWriteOpen(false);
-  };
-
-
-  // ✅ (지금은 프론트 전용) 글쓰기 시 리스트에만 추가 
-  // 12/17 - 백엔드 연동 수정 , 토큰화
+  // ✅ 글쓰기: POST도 API_BASE_URL 사용
   const handleSubmitWrite = async ({ title, content, image }) => {
     try {
-    const token = await auth.currentUser?.getIdToken();
-    if (!token) {
-      alert("로그인이 필요합니다.");
-      return;
-    }
+      if (!API_BASE_URL) {
+        alert("API 주소(VITE_API_BASE_URL)가 설정되지 않았습니다.");
+        return;
+      }
 
-    const form = new FormData();
-    form.append("nickname", "가연"); // 일단 임시로 두어도 됨(나중에 users에서 가져오면 더 좋음)
-    form.append("title", title);
-    form.append("body", content);
-    if (image) form.append("image", image);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) {
+        alert("로그인이 필요합니다.");
+        return;
+      }
 
-    const res = await fetch("http://localhost:8000/community/posts", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: form,
-    });
+      const form = new FormData();
+      form.append("nickname", "가연"); // 임시
+      form.append("title", title);
+      form.append("body", content);
+      if (image) form.append("image", image);
+
+      const res = await fetch(`${API_BASE_URL}/community/posts`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: form,
+      });
 
       if (!res.ok) {
         throw new Error(`HTTP 오류: ${res.status}`);
@@ -89,17 +95,15 @@ function App() {
 
       const created = await res.json();
 
-      // 🔥 백엔드에서 돌아온 데이터로 리스트 아이템 생성
       const mapped = {
-        id: created.postId,                              // **백엔드 postId가 진짜 ID!**
+        id: created.postId,
         title: created.title,
-        date: created.createdAt.slice(0, 10),            // YYYY-MM-DD
+        date: created.createdAt.slice(0, 10),
         nickname: created.nickname,
         commentCount: (created.comments || []).length,
         imageUrl: created.imageUrl,
       };
 
-      // 최신 글이 위로 오게
       setCommunityData((prev) => [mapped, ...prev]);
     } catch (err) {
       console.error("글 작성 실패:", err);
@@ -112,6 +116,11 @@ function App() {
 
     const fetchCommunity = async () => {
       try {
+        if (!API_BASE_URL) {
+          setCommunityError("API 주소(VITE_API_BASE_URL)가 설정되지 않았습니다.");
+          return;
+        }
+
         setCommunityLoading(true);
         setCommunityError(null);
 
@@ -125,11 +134,10 @@ function App() {
 
         const data = await res.json();
 
-        // 🔥 백엔드 응답 → 프론트에서 쓰기 좋은 형태로 변환
         const mapped = (data.items || []).map((item) => ({
-          id: item.postId,                 // 리스트에서 key로 사용
+          id: item.postId,
           title: item.title,
-          date: item.createdAt.slice(0, 10), // YYYY-MM-DD만 사용
+          date: item.createdAt.slice(0, 10),
           nickname: item.nickname,
           commentCount: item.commentCount,
           imageUrl: item.imageUrl,
@@ -148,59 +156,61 @@ function App() {
   }, [selectedMenu]);
 
   const currentData =
-    selectedMenu === 'notice' ? NOTICE_DATA :
-      selectedMenu === 'community' ? communityData :
-        [];
+    selectedMenu === "notice" ? NOTICE_DATA : selectedMenu === "community" ? communityData : [];
 
   const currentTitle =
-    selectedMenu === 'notice' ? '공지사항' :
-      selectedMenu === 'community' ? '커뮤니티' :
-        '제작자 정보';
+    selectedMenu === "notice" ? "공지사항" : selectedMenu === "community" ? "커뮤니티" : "제작자 정보";
 
-  const showWriteButton = selectedMenu === 'community';
+  const showWriteButton = selectedMenu === "community";
 
   return (
-    <div className='page'>
-      <aside className='left-panel'>
-        <div className='left-header'>
-          <img src="/please.png" alt="title" className='title-image' />
+    <div className="page">
+      <aside className="left-panel">
+        <div className="left-header">
+          <img src="/please.png" alt="title" className="title-image" />
         </div>
 
-        <nav className='menu'>
+        <nav className="menu">
           <button
             className={selectedMenu === "notice" ? "menu-button active" : "menu-button"}
-            onClick={() => { setSelectedMenu("notice"); setSelectedPost(null); }}
+            onClick={() => {
+              setSelectedMenu("notice");
+              setSelectedPost(null);
+            }}
           >
             공지사항
           </button>
+
           <button
             className={selectedMenu === "community" ? "menu-button active" : "menu-button"}
-            onClick={() => { setSelectedMenu("community"); setSelectedPost(null); }}
+            onClick={() => {
+              setSelectedMenu("community");
+              setSelectedPost(null);
+            }}
           >
             유저 커뮤니티
           </button>
+
           <button
             className={selectedMenu === "about" ? "menu-button active" : "menu-button"}
-            onClick={() => { setSelectedMenu("about"); setSelectedPost(null); }}
+            onClick={() => {
+              setSelectedMenu("about");
+              setSelectedPost(null);
+            }}
           >
             제작자 정보
           </button>
         </nav>
       </aside>
 
-      <main className='main-panel'>
+      <main className="main-panel">
         {selectedMenu === "about" ? (
           <section>
-            <h2 className='main-title'>제작자 정보</h2>
+            <h2 className="main-title">제작자 정보</h2>
           </section>
         ) : selectedPost ? (
-          <PostDetail
-            post={selectedPost}
-            onBack={handleBackToList}
-            onCommentAdded={handleCommentAdded}
-          />
+          <PostDetail post={selectedPost} onBack={handleBackToList} onCommentAdded={handleCommentAdded} />
         ) : selectedMenu === "community" ? (
-          // 🔥 커뮤니티일 때만 로딩/에러 처리
           communityLoading ? (
             <p>커뮤니티 글을 불러오는 중입니다...</p>
           ) : communityError ? (
@@ -216,7 +226,6 @@ function App() {
             />
           )
         ) : (
-          // 공지사항 화면
           <BoardPage
             title={currentTitle}
             data={currentData}
@@ -228,11 +237,7 @@ function App() {
         )}
       </main>
 
-      <WritePostModal
-        open={isWriteOpen}
-        onClose={handleCloseWrite}
-        onSubmit={handleSubmitWrite}
-      />
+      <WritePostModal open={isWriteOpen} onClose={handleCloseWrite} onSubmit={handleSubmitWrite} />
     </div>
   );
 }
