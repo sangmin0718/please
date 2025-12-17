@@ -3,6 +3,8 @@
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { CASES, type CaseData, type TabType } from './cases';
+import { useRef } from 'react';
+
 
 const MENU_BUTTONS: { tab: TabType; name: string; top: string }[] = [
   { tab: 'document', name: '문서', top: '19.5%' },
@@ -117,6 +119,62 @@ function CharacterCarousel({ images, interval = 150 }: CharacterCarouselProps) {
 }
 
 export default function GameScreen() {
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+
+  const sessionIdRef = useRef<string | null>(null);
+  const startIsoRef = useRef<string | null>(null);
+
+  const getUid = () => (typeof window !== 'undefined'
+    ? (localStorage.getItem('uid') ?? '').trim()
+    : ''
+  );
+
+  const apiPost = async (path: string, body: any) => {
+    if (!API_BASE) throw new Error('NEXT_PUBLIC_API_BASE is not set');
+    const res = await fetch(`${API_BASE}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`${path} failed: ${res.status} ${text}`);
+    }
+    return res.json();
+  };
+
+  const startSession = async (caseId: number) => {
+    const uid = getUid();
+    if (!uid) {
+      alert('아이디가 없음. 로비에서 uid 저장부터 하자.');
+      return;
+    }
+    const data = await apiPost('/events/start', {
+      uid,
+      caseid: String(caseId),
+    });
+    sessionIdRef.current = data.session_id;
+    startIsoRef.current = data.startTime; // 백엔드가 KST ISO 줌
+    console.log('session start', data);
+  };
+
+  const endSession = async (judge: boolean, caseId: number) => {
+    const sid = sessionIdRef.current;
+    if (!sid) {
+      console.warn('No session_id. startSession이 안 불렸음');
+      return;
+    }
+    const data = await apiPost('/events/end', {
+      session_id: sid,
+      judge,
+      caseid: String(caseId),
+    });
+    console.log('session end', data);
+    // 다음 판 대비 초기화
+    sessionIdRef.current = null;
+    startIsoRef.current = null;
+  };
+  
   const [currentTab, setCurrentTab] = useState<TabType>('document');
   const [currentCaseId, setCurrentCaseId] = useState(1);
   const [gameState, setGameState] = useState<GameState>('case-selection');
@@ -151,9 +209,9 @@ export default function GameScreen() {
       (verdict === 'guilty' && !selectedCase.is_innocent);
 
     if (isCorrect) {
-      alert('🎉 정답입니다!');
+      alert(' 정답입니다!');
     } else {
-      alert('❌ 오답입니다!');
+      alert(' 오답입니다!');
     }
     setCheckedItems({});
   };
