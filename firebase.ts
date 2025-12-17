@@ -3,7 +3,7 @@ import { getFirestore } from "firebase/firestore";
 
 /**
  * Next.js (App Router) 프론트에서 Firestore 쓰는 기본 초기화 파일
- *  env는 반드시 NEXT_PUBLIC_ 로 시작해야 브라우저에서 읽힘
+ *  env는 반드시 NEXT_PUBLIC_ 로 시작해야 브라우저에서 읽히는중
  *  getApps()로 개발모드 중복 초기화 방지함
  */
 
