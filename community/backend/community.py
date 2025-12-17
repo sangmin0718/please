@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 from datetime import datetime, timezone, timedelta
 import json, uuid
-from firebase import get_uid
+from .firebase import get_uid
 from fastapi import Header
 
 
