@@ -130,18 +130,31 @@ export default function GameScreen() {
   );
 
   const apiPost = async (path: string, body: any) => {
-    if (!API_BASE) throw new Error('NEXT_PUBLIC_API_BASE is not set');
-    const res = await fetch(`${API_BASE}${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) {
-      const text = await res.text().catch(() => '');
-      throw new Error(`${path} failed: ${res.status} ${text}`);
-    }
-    return res.json();
-  };
+  if (!API_BASE) throw new Error('NEXT_PUBLIC_API_BASE is not set');
+
+  const token =
+    typeof window !== 'undefined' ? localStorage.getItem('idToken') : null;
+
+  if (!token) {
+    throw new Error('idToken이 없습니다. 커뮤니티에서 로그인 후 들어왔는지 확인하세요.');
+  }
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`, // 토큰
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`${path} failed: ${res.status} ${text}`);
+  }
+  return res.json();
+};
+
 
   const startSession = async (caseId: number) => {
     const uid = getUid();
