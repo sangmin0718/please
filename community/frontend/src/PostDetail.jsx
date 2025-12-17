@@ -1,6 +1,21 @@
 import { useEffect, useState } from "react";
 
-const API_BASE_URL = "http://localhost:8000";
+const DEFAULT_BACKEND = "https://community-backend-urk6.onrender.com";
+const isLocalHost =
+  typeof window !== "undefined" &&
+  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL ||
+  (isLocalHost ? "http://localhost:8000" : DEFAULT_BACKEND)
+).replace(/\/$/, "");
+
+function toAbsoluteUrl(url) {
+  if (!url) return null;
+  if (/^https?:\/\//i.test(url)) return url;
+  const normalized = url.startsWith("/") ? url : `/${url}`;
+  return `${API_BASE_URL}${normalized}`;
+}
 
 function PostDetail({ post, onBack, onCommentAdded }) {
   const [data, setData] = useState(null);
@@ -86,7 +101,7 @@ function PostDetail({ post, onBack, onCommentAdded }) {
       {data.imageUrl && (
         <div className="post-image-wrapper">
           <img
-            src={`${API_BASE_URL}${data.imageUrl}`}
+            src={toAbsoluteUrl(data.imageUrl)}
             alt=""
             className="post-image"
           />
